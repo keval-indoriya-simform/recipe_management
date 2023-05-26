@@ -1,7 +1,7 @@
 package main
 
-import "github.com/keval-indoriya-simform/recipe_management/initializers"
+import "github.com/keval-indoriya-simform/recipe_management/router"
 
 func main() {
-	initializers.Server.Run("localhost:8080")
+	router.Server.Run("localhost:8080")
 }

@@ -11,7 +11,7 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
     <style type="text/css" media="screen">
         <!--
-        @import url("css/login.css");
+        @import url("css/basic.css");
         -->
     </style>
 </head>
@@ -20,7 +20,7 @@
     <form action="/examples/actions/confirmation.php" method="post">
         <h2 class="text-center">Log in</h2>
         <div class="form-group">
-            <input type="text" class="form-control" placeholder="Username" required="required">
+            <input type="email" class="form-control" placeholder="Email" required="required">
         </div>
         <div class="form-group">
             <input type="password" class="form-control" placeholder="Password" required="required">
@@ -32,7 +32,13 @@
             <a href="#" class="float-right">Forgot Password?</a>
         </div>
     </form>
-    <p class="text-center"><a href="#">Create an Account</a></p>
+    <p class="text-center"><a href="signup">Create an Account</a></p>
+    <div class="row">
+        <div class="col-md-12">
+            <a class="btn btn-lg btn-google btn-block text-uppercase btn-outline" href="/google/login"><img src="https://img.icons8.com/color/16/000000/google-logo.png"> Signup Using Google</a>
+        </div>
+    </div>
+    <br>
 </div>
 </body>
 </html>
