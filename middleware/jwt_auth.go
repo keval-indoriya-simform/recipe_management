@@ -1,7 +1,6 @@
 package middelware
 
 import (
-	"fmt"
 	"github.com/gin-contrib/sessions"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/keval-indoriya-simform/recipe_management/services"
@@ -13,16 +12,15 @@ import (
 
 func AuthorizeJWT() gin.HandlerFunc {
 	return func(context *gin.Context) {
+
 		session := sessions.Default(context)
 		tokenstr := session.Get("token")
-		fmt.Println(tokenstr)
 		if tokenstr == nil {
-			context.Redirect(http.StatusTemporaryRedirect, "/")
+			log.Println("token not found")
+			context.Redirect(http.StatusTemporaryRedirect, "/login")
 		} else {
-			token, err := services.NewJWTService().ValidateToken(fmt.Sprintf("%v", tokenstr))
-
+			token, _ := services.NewJWTService().ValidateToken(tokenstr.(string))
 			if !token.Valid {
-				log.Println(err)
 				context.AbortWithStatus(http.StatusForbidden)
 			} else {
 				claims := token.Claims.(jwt.MapClaims)

@@ -1,8 +1,6 @@
 package controllers
 
 import (
-	"database/sql"
-	"fmt"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 	"github.com/goccy/go-json"
@@ -87,8 +85,13 @@ func GoogleCallback(context *gin.Context) {
 
 func HomePage(context *gin.Context) {
 	recipe := recipeController.FindAll()
+	db := initializers.GetConnection()
+	defer initializers.CloseConnection(db)
+	var categories []string
+	db.Model(&models.Category{}).Select("name").Find(&categories)
 	context.HTML(http.StatusOK, "home.html", gin.H{
-		"recipes": recipe,
+		"categories": categories,
+		"recipes":    recipe,
 	})
 }
 
@@ -116,16 +119,13 @@ func MyRecipePage(context *gin.Context) {
 }
 
 func Logout(context *gin.Context) {
-	log.Println("fddiojg")
 	session := sessions.Default(context)
 	session.Clear()
 	err := session.Save()
 	if err != nil {
 		log.Fatal(err)
 	} else {
-		tokenstr := session.Get("token")
-		fmt.Println(tokenstr)
-		context.Redirect(http.StatusPermanentRedirect, "/")
+		context.Redirect(http.StatusPermanentRedirect, "/login")
 	}
 }
 
@@ -235,16 +235,29 @@ func GetReviewApi(context *gin.Context) {
 }
 
 func SearchApi(context *gin.Context) {
-	search_keyword := "%" + context.Query("query") + "%"
+	type Search struct {
+		SearchKeyword string   `json:"search_keyword,omitempty" form:"search"`
+		Categories    []string `json:"categories,omitempty" form:"search-categories[]"`
+		MealTypes     []string `json:"meal_types,omitempty" form:"search-type[]"`
+		Courses       []string `json:"courses,omitempty" form:"search-meals[]"`
+		Sort          string   `json:"sort,omitempty" form:"search-sort"`
+	}
+	var searchStruct Search
+	err := context.Bind(&searchStruct)
+	if err != nil {
+		log.Println(err)
+	}
+	log.Println(searchStruct)
 	db := initializers.GetConnection()
 	defer initializers.CloseConnection(db)
 	var recipe []models.Recipe
 	db.Debug().Model(models.Recipe{}).Distinct("recipes.*").
 		Joins("left join recipe_categories as rc on recipes.id = rc.recipe_id"+
 			" left join categories as c on rc.category_id = c.id").
-		Where("title ILike @search_keyword OR type ILike @search_keyword OR meals ILike @search_keyword "+
-			"OR ingredients ILike @search_keyword OR c.name ILike @search_keyword",
-			sql.Named("search_keyword", search_keyword)).
+		Where("title ILike %?% OR type IN ? OR meals IN ? "+
+			"OR ingredients ILike ? OR c.name IN ?",
+			searchStruct.SearchKeyword, searchStruct.MealTypes, searchStruct.Courses, searchStruct.SearchKeyword, searchStruct.Categories).
+		Order(searchStruct.Sort).
 		Find(&recipe)
 	context.HTML(http.StatusOK, "search.html", gin.H{
 		"recipes": recipe,
