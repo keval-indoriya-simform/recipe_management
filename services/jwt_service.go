@@ -3,50 +3,48 @@ package services
 import (
 	"fmt"
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/keval-indoriya-simform/recipe_management/models"
 	"os"
 	"time"
 )
 
 type JWTService interface {
-	GenerateToken(name string, email string) string
+	GenerateToken(user models.Login) string
 	ValidateToken(tokenString string) (*jwt.Token, error)
 }
 
-type jwtCustomClaims struct {
+type JwtCustomClaims struct {
 	Name  string `json:"name"`
 	Email string `json:"email"`
 	jwt.RegisteredClaims
 }
 
 type jwtService struct {
-	secretKey string
-	issuer    string
+	secretKey []byte
 }
 
 func NewJWTService() JWTService {
 	return &jwtService{
-		secretKey: getSecretKey(),
-		issuer:    "KevalIndoriya",
+		secretKey: GetSecretKey(),
 	}
 }
 
-func getSecretKey() string {
+func GetSecretKey() []byte {
 	secret := os.Getenv("JWT_SECRET")
 	if secret == "" {
-		secret = "secret"
+		secret = "keval"
 	}
-	return secret
+	return []byte(secret)
 }
 
-func (jwtSrv jwtService) GenerateToken(username string, email string) string {
+func (jwtSrv jwtService) GenerateToken(user models.Login) string {
 	sleepTime := 72
-	claims := &jwtCustomClaims{
-		username,
-		email,
+	claims := &JwtCustomClaims{
+		user.Name,
+		user.Email,
 		jwt.RegisteredClaims{
 			ExpiresAt: &jwt.NumericDate{Time: time.Now().Add(time.Hour * time.Duration(sleepTime))},
 			IssuedAt:  &jwt.NumericDate{Time: time.Now()},
-			Issuer:    jwtSrv.issuer,
 		},
 	}
 

@@ -2,7 +2,6 @@ package services
 
 import (
 	"errors"
-	"fmt"
 	"golang.org/x/oauth2"
 	"io"
 	"net/http"
@@ -22,7 +21,6 @@ var (
 )
 
 func Login(config *ConfigureOAuth2) string {
-	fmt.Println(config.AuthCodeURL(config.State))
 	return config.AuthCodeURL(config.State)
 }
 

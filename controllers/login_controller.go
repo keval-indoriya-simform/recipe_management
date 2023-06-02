@@ -1,38 +1,28 @@
 package controllers
 
 import (
-	"github.com/gin-gonic/gin"
+	"github.com/keval-indoriya-simform/recipe_management/models"
 	"github.com/keval-indoriya-simform/recipe_management/services"
 )
 
 var (
-	jwtService = services.NewJWTService()
-	userInfo   User
+	JwtService = services.NewJWTService()
 )
 
 type LoginController interface {
-	Login(context *gin.Context) string
+	Login(user models.Login) string
 }
 
 type loginController struct {
-	jwtService services.JWTService
-}
-
-type User struct {
-	name  string `json:"name,omitempty"`
-	email string `json:"email,omitempty"`
+	JwtService services.JWTService
 }
 
 func NewLoginController() LoginController {
 	return &loginController{
-		jwtService: jwtService,
+		JwtService: JwtService,
 	}
 }
 
-func (controller *loginController) Login(context *gin.Context) string {
-	err := context.ShouldBind(&userInfo)
-	if err != nil {
-		return ""
-	}
-	return controller.jwtService.GenerateToken(userInfo.name, userInfo.email)
+func (controller *loginController) Login(user models.Login) string {
+	return controller.JwtService.GenerateToken(user)
 }

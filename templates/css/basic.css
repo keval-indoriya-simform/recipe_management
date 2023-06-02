@@ -1,5 +1,5 @@
 .login-form {
-    width: 340px;
+    width: 600px;
     margin: 50px auto;
     font-size: 15px;
 }
@@ -10,8 +10,9 @@
     padding: 30px;
 }
 .login-form h2 {
-    margin: 0 0 15px;
+    margin: 0 0 5px;
 }
+
 .form-control, .btn {
     min-height: 38px;
     border-radius: 2px;
@@ -19,4 +20,8 @@
 .btn {
     font-size: 15px;
     font-weight: bold;
+}
+
+.cate {
+    min-height: 130px;
 }
