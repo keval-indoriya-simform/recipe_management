@@ -84,11 +84,11 @@ func GoogleCallback(context *gin.Context) {
 }
 
 func HomePage(context *gin.Context) {
-	recipe := recipeController.FindAll()
+
 	db := initializers.GetConnection()
 	defer initializers.CloseConnection(db)
-	var categories []string
-	db.Model(&models.Category{}).Select("name").Find(&categories)
+	recipe := recipeController.FindAll()
+	categories := models.FindAllCategoriesName()
 	context.HTML(http.StatusOK, "home.html", gin.H{
 		"categories": categories,
 		"recipes":    recipe,
@@ -99,11 +99,7 @@ func AddRecipePage(context *gin.Context) {
 	//key, _ := services.NewJWTService().ValidateToken(token.(string))
 	//claims := key.Claims.(jwt.MapClaims)
 	email, _ := context.Get("email")
-	//fmt.Println(email)
-	db := initializers.GetConnection()
-	defer initializers.CloseConnection(db)
-	var categories []string
-	db.Model(&models.Category{}).Select("name").Find(&categories)
+	categories := models.FindAllCategoriesName()
 	context.HTML(http.StatusOK, "add_recipe.html", gin.H{
 		"email":      email,
 		"categories": categories,
@@ -112,9 +108,11 @@ func AddRecipePage(context *gin.Context) {
 
 func MyRecipePage(context *gin.Context) {
 	email, _ := context.Get("email")
+	categories := models.FindAllCategoriesName()
 	recipe := recipeController.FindAllWithEmail(email.(string))
 	context.HTML(http.StatusOK, "my_recipe.html", gin.H{
-		"recipes": recipe,
+		"categories": categories,
+		"recipes":    recipe,
 	})
 }
 
@@ -125,7 +123,8 @@ func Logout(context *gin.Context) {
 	if err != nil {
 		log.Fatal(err)
 	} else {
-		context.Redirect(http.StatusPermanentRedirect, "/login")
+		//context.String(http.StatusOK, "logout")
+		context.Redirect(http.StatusFound, "/login")
 	}
 }
 
@@ -159,10 +158,7 @@ func AddRecipeApi(context *gin.Context) {
 func EditRecipePage(context *gin.Context) {
 	email, _ := context.Get("email")
 	id := context.Param("id")
-	db := initializers.GetConnection()
-	defer initializers.CloseConnection(db)
-	var categories []string
-	db.Model(&models.Category{}).Select("name").Find(&categories)
+	categories := models.FindAllCategoriesName()
 	context.HTML(http.StatusOK, "edit_recipe.html", gin.H{
 		"ID":         id,
 		"email":      email,
@@ -213,9 +209,11 @@ func FullRecipePage(context *gin.Context) {
 	id := context.Param("id")
 	email, _ := context.Get("email")
 	recipe := recipeController.FindByID(id)
+	categories := models.FindAllCategoriesName()
 	context.HTML(http.StatusOK, "full_recipe_page.html", gin.H{
-		"email":  email,
-		"recipe": recipe,
+		"email":      email,
+		"recipe":     recipe,
+		"categories": categories,
 	})
 }
 
@@ -247,19 +245,40 @@ func SearchApi(context *gin.Context) {
 	if err != nil {
 		log.Println(err)
 	}
-	log.Println(searchStruct)
 	db := initializers.GetConnection()
 	defer initializers.CloseConnection(db)
 	var recipe []models.Recipe
-	db.Debug().Model(models.Recipe{}).Distinct("recipes.*").
+	var courseQuery, categoriesQuery, typeQuery = "", "", ""
+	if len(searchStruct.Categories) != 0 {
+		categoriesQuery = " AND c.name IN ('" + strings.Join(searchStruct.Categories, "', '") + "')"
+	}
+	if len(searchStruct.MealTypes) != 0 {
+		typeQuery = " AND type IN ('" + strings.Join(searchStruct.MealTypes, "', '") + "')"
+	}
+	if len(searchStruct.Courses) != 0 {
+		courseQuery = " AND ("
+		for i, _ := range searchStruct.Courses {
+			courseQuery += "meals ILike '%" + searchStruct.Courses[i] + "%'"
+			if i != (len(searchStruct.Courses) - 1) {
+				courseQuery += " OR "
+			}
+		}
+		courseQuery += ")"
+	}
+	query := db.Model(models.Recipe{}).Distinct("recipes.*, avg(rating) as rating").
 		Joins("left join recipe_categories as rc on recipes.id = rc.recipe_id"+
-			" left join categories as c on rc.category_id = c.id").
-		Where("title ILike %?% OR type IN ? OR meals IN ? "+
-			"OR ingredients ILike ? OR c.name IN ?",
-			searchStruct.SearchKeyword, searchStruct.MealTypes, searchStruct.Courses, searchStruct.SearchKeyword, searchStruct.Categories).
-		Order(searchStruct.Sort).
-		Find(&recipe)
+			" left join categories as c on rc.category_id = c.id"+
+			" left join reviews as r on r.recipe_id = recipes.id").Group("r.recipe_id, recipes.id").Where("(title ILike ? OR ingredients ILike ?)"+categoriesQuery+typeQuery+courseQuery,
+		"%"+searchStruct.SearchKeyword+"%", "%"+searchStruct.SearchKeyword+"%")
+	query.Order(searchStruct.Sort).Find(&recipe)
+	for i, _ := range recipe {
+		var avgRating int = 0
+		db.Model(models.Review{}).Select("floor(avg(rating))").Where("recipe_id=?", recipe[i].ID).Group("recipe_id").Find(&avgRating)
+		recipe[i].AvgRating = avgRating
+	}
+	categories := models.FindAllCategoriesName()
 	context.HTML(http.StatusOK, "search.html", gin.H{
-		"recipes": recipe,
+		"recipes":    recipe,
+		"categories": categories,
 	})
 }
