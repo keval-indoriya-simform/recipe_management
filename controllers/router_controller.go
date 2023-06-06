@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"database/sql"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 	"github.com/goccy/go-json"
@@ -9,6 +10,7 @@ import (
 	"github.com/keval-indoriya-simform/recipe_management/models"
 	"github.com/keval-indoriya-simform/recipe_management/services"
 	"golang.org/x/oauth2/google"
+	"golang.org/x/oauth2/microsoft"
 	"log"
 	"net/http"
 	"os"
@@ -19,6 +21,7 @@ import (
 
 var (
 	googleConf       = &services.ConfigureOAuth2{}
+	microsoftConf    = &services.ConfigureOAuth2{}
 	loginControllers = NewLoginController()
 	recipeService    = services.NewRecipeService()
 	recipeController = NewRecipeController(recipeService)
@@ -40,7 +43,17 @@ func init() {
 	googleConf.GetInfoURL = os.Getenv("GOOGLE_GET_DETAIL_URL") + "?access_token="
 	googleConf.RequestMethod = http.MethodGet
 	googleConf.Body = http.NoBody
+	microsoftConf.ClientID = os.Getenv("MICROSOFT_CLIENT_ID")
+	microsoftConf.ClientSecret = os.Getenv("MICROSOFT_CLIENT_SECRET")
+	microsoftConf.RedirectURL = os.Getenv("MICROSOFT_REDIRECT_URL")
+	microsoftConf.Scopes = strings.Split(os.Getenv("MICROSOFT_SCOPES"), ",")
+	microsoftConf.Endpoint = microsoft.AzureADEndpoint(os.Getenv("MICROSOFT_TENANT_ID"))
+	microsoftConf.State = "randomstate"
+	microsoftConf.GetInfoURL = os.Getenv("MICROSOFT_GET_DETAIL_URL")
+	microsoftConf.RequestMethod = http.MethodGet
+	microsoftConf.Body = http.NoBody
 }
+
 func LoginPage(Context *gin.Context) {
 	Context.HTML(http.StatusOK, "login.html", nil)
 }
@@ -87,7 +100,8 @@ func HomePage(context *gin.Context) {
 
 	db := initializers.GetConnection()
 	defer initializers.CloseConnection(db)
-	recipe := recipeController.FindAll()
+	//recipe := recipeController.FindAll()
+	recipe := models.GetAllRecipe()
 	categories := models.FindAllCategoriesName()
 	context.HTML(http.StatusOK, "home.html", gin.H{
 		"categories": categories,
@@ -190,7 +204,7 @@ func EditRecipeApi(context *gin.Context) {
 	}
 	Recipes := services.StructFromRecipeForm(recipe, filenames)
 	recipeController.Update(&Recipes)
-	context.Redirect(http.StatusOK, "/fullrecipe/"+recipe.ID)
+	context.Redirect(http.StatusFound, "/fullrecipe/"+recipe.ID)
 }
 
 func DeleteRecipeApi(context *gin.Context) {
@@ -265,11 +279,11 @@ func SearchApi(context *gin.Context) {
 		}
 		courseQuery += ")"
 	}
-	query := db.Model(models.Recipe{}).Distinct("recipes.*, avg(rating) as rating").
+	query := db.Debug().Model(models.Recipe{}).Distinct("recipes.*, avg(rating) as rating").
 		Joins("left join recipe_categories as rc on recipes.id = rc.recipe_id"+
 			" left join categories as c on rc.category_id = c.id"+
-			" left join reviews as r on r.recipe_id = recipes.id").Group("r.recipe_id, recipes.id").Where("(title ILike ? OR ingredients ILike ?)"+categoriesQuery+typeQuery+courseQuery,
-		"%"+searchStruct.SearchKeyword+"%", "%"+searchStruct.SearchKeyword+"%")
+			" left join reviews as r on r.recipe_id = recipes.id").Group("r.recipe_id, recipes.id").Where("(title ILike @keyword OR ingredients ILike @keyword OR type ILike @keyword OR meals ILike @keyword OR c.name ILike @keyword)"+categoriesQuery+typeQuery+courseQuery,
+		sql.Named("keyword", "%"+searchStruct.SearchKeyword+"%"))
 	query.Order(searchStruct.Sort).Find(&recipe)
 	for i, _ := range recipe {
 		var avgRating int = 0
@@ -281,4 +295,42 @@ func SearchApi(context *gin.Context) {
 		"recipes":    recipe,
 		"categories": categories,
 	})
+}
+
+func GetAllReviewsByRecipeIDApi(context *gin.Context) {
+	id := context.Param("id")
+	reviews := reviewController.GetReviewByRecipeID(id)
+	context.JSON(http.StatusOK, reviews)
+}
+
+func MicrosoftLogin(context *gin.Context) {
+	url := services.Login(microsoftConf)
+	context.Redirect(http.StatusFound, url)
+}
+func MicrosoftCallback(context *gin.Context) {
+	userInfo, getInfoError := services.Callback(
+		context.Request,
+		microsoftConf,
+		services.AuthorizationBearer)
+	if getInfoError != nil {
+		log.Fatalln(getInfoError)
+	}
+	var TokenRes map[string]interface{}
+	json.Unmarshal(userInfo, &TokenRes)
+	user := models.Login{
+		Name:  TokenRes["displayName"].(string),
+		Email: TokenRes["mail"].(string),
+	}
+	token := loginControllers.Login(user)
+	if token != "" {
+		session := sessions.Default(context)
+		session.Set("token", token)
+		err := session.Save()
+		if err != nil {
+			log.Fatal(err)
+		}
+		context.Redirect(http.StatusFound, "/home")
+	} else {
+		context.JSON(http.StatusForbidden, nil)
+	}
 }

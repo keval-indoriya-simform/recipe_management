@@ -8,6 +8,7 @@ import (
 type ReviewService interface {
 	Save(review *models.Review)
 	GetReviewByEmailID(email string, id string) models.Review
+	GetReviewByRecipeID(id string) []models.Review
 }
 
 type reviewService struct {
@@ -25,4 +26,9 @@ func (service *reviewService) Save(review *models.Review) {
 func (service *reviewService) GetReviewByEmailID(email string, id string) models.Review {
 	ID, _ := strconv.Atoi(id)
 	return models.GetReviewByEmailID(email, ID)
+}
+
+func (service *reviewService) GetReviewByRecipeID(id string) []models.Review {
+	ID, _ := strconv.Atoi(id)
+	return models.GetReviewByRecipeID(ID)
 }

@@ -43,7 +43,6 @@ func GetAllRecipe() []Recipe {
 	var recipes []Recipe
 	db := initializers.GetConnection()
 	defer initializers.CloseConnection(db)
-	defer initializers.CloseConnection(db)
 	db.Preload("Categories").Find(&recipes)
 	for i, _ := range recipes {
 		var avgRating int = 0
@@ -57,7 +56,7 @@ func GetRecipeByEmail(email string) []Recipe {
 	var recipes []Recipe
 	db := initializers.GetConnection()
 	defer initializers.CloseConnection(db)
-	db.Where("email_id=?", email).Find(&recipes)
+	db.Preload("Categories").Where("email_id=?", email).Find(&recipes)
 	for i, _ := range recipes {
 		var avgRating int = 0
 		db.Model(Review{}).Select("floor(avg(rating))").Where("recipe_id=?", recipes[i].ID).Group("recipe_id").Find(&avgRating)
@@ -70,19 +69,18 @@ func GetRecipeByID(id int) Recipe {
 	var recipe Recipe
 	db := initializers.GetConnection()
 	defer initializers.CloseConnection(db)
-	db.Where("id=?", id).Find(&recipe)
+	db.Preload("Categories").Where("id=?", id).Find(&recipe)
 	var avgRating int = 0
 	db.Model(Review{}).Select("floor(avg(rating))").Where("recipe_id=?", recipe.ID).Group("recipe_id").Find(&avgRating)
 	recipe.AvgRating = avgRating
 	return recipe
 }
 
-func DeleteRecipeByID(id int) Recipe {
-	var recipe Recipe
+func DeleteRecipeByID(id int) {
 	db := initializers.GetConnection()
 	defer initializers.CloseConnection(db)
-	db.Where("id=?", id).Delete(&recipe)
-	return recipe
+	db.Table("recipe_categories").Where("recipe_id=?", id).Delete("recipe_id, category_id")
+	db.Where("id=?", id).Delete(&Recipe{})
 }
 
 func EditRecipeData(recipe *Recipe) {

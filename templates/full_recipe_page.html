@@ -41,92 +41,8 @@
                 <li class="nav-item ms-5">
                     <form action="/search" id="search-form" method="post" class="d-flex">
                         <input class="form-control" style="width: 20vw" type="search" name="search" id="search" placeholder="Search" aria-label="Search">
-                        <button class="btn btn-outline-dark ms-4" id="searchbtn" type="submit">Search</button>
-                        <div class="dropdown-center ms-4">
-                            <button class="btn btn-outline-dark dropdown-toggle dropdown-toggle-split" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                Advance Search
-                            </button>
-                            <ul class="dropdown-menu" style="width: 220px">
-                                <li class="dropdown-item">Categories</li>
-                                <ul>
-                                    {{range .categories}}
-                                        <li>
-                                            <input type="checkbox" id="{{.}}" name="search-categories[]" value="{{.}}">
-                                            <label for="{{.}}" >{{.}}</label>
-                                        </li>
-                                    {{end}}
-                                </ul>
-                                <li class="dropdown-item">Type</li>
-                                <ul>
-                                    <li>
-                                        <input type="checkbox" name="search-type[]" value="vegetarian" id="vegetarian" />
-                                        <label  for="vegetarian">Vegetarian</label>
-                                    </li>
-                                    <li>
-                                        <input type="checkbox" name="search-type[]" value="non vegetarian" id="non-vegetarian" />
-                                        <label for="non-vegetarian">Non Vegetarian</label>
-                                    </li>
-                                    <li>
-                                        <input type="checkbox" name="search-type[]" value="eggetarian" id="eggetarian" />
-                                        <label for="eggetarian">Eggetarian</label>
-                                    </li>
-                                    <li>
-                                        <input type="checkbox" name="search-type[]" value="vegan" id="vegan" />
-                                        <label for="vegan">Vegan</label>
-                                    </li>
-                                </ul>
-                                <li class="dropdown-item">Courses</li>
-                                <ul>
-                                    <li>
-                                        <input type="checkbox" name="search-meals[]" value="breakfast" id="breakfast" />
-                                        <label  for="breakfast">Breakfast</label>
-                                    </li>
-                                    <li>
-                                        <input type="checkbox" name="search-meals[]" value="brunch" id="brunch" />
-                                        <label for="brunch">Brunch</label>
-                                    </li>
-                                    <li>
-                                        <input type="checkbox" name="search-meals[]" value="lunch" id="lunch" />
-                                        <label for="lunch">Lunch</label>
-                                    </li>
-                                    <li>
-                                        <input type="checkbox" name="search-meals[]" value="snack" id="snack" />
-                                        <label for="snack">Snack</label>
-                                    </li>
-                                    <li>
-                                        <input type="checkbox" name="search-meals[]" value="dinner" id="dinner" />
-                                        <label for="dinner">Dinner</label>
-                                    </li>
-                                </ul>
-                                <li class="dropdown-item">Sorting</li>
-                                <ul>
-                                    <li>
-                                        <input type="radio" name="search-sort" value="title" id="title"/>
-                                        <label for="titleAcs">Title (A - Z)</label>
-                                    </li>
-                                    <li>
-                                        <input type="radio" name="search-sort" value="title desc" id="titleDesc"/>
-                                        <label for="titleDesc">Title (Z - A)</label>
-                                    </li>
-                                    <li>
-                                        <input type="radio" name="search-sort" value="rating" id="rating"/>
-                                        <label for="rating">Rating (High To Low)</label>
-                                    </li>
-                                    <li>
-                                        <input type="radio" name="search-sort" value="rating desc" id="ratingDesc"/>
-                                        <label for="ratingDesc">Rating (Low To High)</label>
-                                    </li>
-                                    <li>
-                                        <input type="radio" name="search-sort" value="date" id="date"/>
-                                        <label for="date">Date (Old To New)</label>
-                                    </li>
-                                    <li>
-                                        <input type="radio" name="search-sort" value="date desc" id="dateDesc"/>
-                                        <label for="dateDesc">Date (New To Old)</label>
-                                    </li>
-                                </ul>
-                            </ul>
-                        </div>
+                        <button class="btn btn-outline-dark ms-4" id="searchbtn" type="button">Search</button>
+                        <button class="btn btn-outline-dark ms-4" data-bs-toggle="modal" data-bs-target="#modalSignin" type="button" id="adv">Advance Search</button>
                     </form>
                 </li>
             </ul>
@@ -140,6 +56,113 @@
         </div>
     </div>
 </nav>
+<div class="modal fade modal-lg" tabindex="-1" role="dialog" id="modalSignin">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content rounded-4 shadow">
+            <div class="modal-header p-5 pb-4 border-bottom-0">
+                <h1 class="fw-bold mb-0 fs-2">Advance Search</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-5 pt-0">
+                <ul class="nav nav-pills mb-3 nav-fill" id="ex1" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <a class="nav-link active" id="ex1-tab-1" data-bs-toggle="pill" href="#ex1-pills-1" role="tab"
+                           aria-controls="ex1-pills-1" aria-selected="true">Categories</a>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <a class="nav-link" id="ex1-tab-2" data-bs-toggle="pill" href="#ex1-pills-2" role="tab"
+                           aria-controls="ex1-pills-2" aria-selected="false">Meal Type</a>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <a class="nav-link" id="ex1-tab-3" data-bs-toggle="pill" href="#ex1-pills-3" role="tab"
+                           aria-controls="ex1-pills-3" aria-selected="false">Courses</a>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <a class="nav-link" id="ex1-tab-4" data-bs-toggle="pill" href="#ex1-pills-4" role="tab"
+                           aria-controls="ex1-pills-4" aria-selected="false">Sorting</a>
+                    </li>
+                </ul>
+                <div class="tab-content" id="ex1-content">
+                    <div class="tab-pane fade show active row" id="ex1-pills-1" role="tabpanel" aria-labelledby="ex1-tab-1">
+                        {{range .categories}}
+                            <fieldset class="d-inline-block col-3 mx-3">
+                                <input form="search-form" class="" type="checkbox" id="{{.}}" name="search-categories[]" value="{{.}}">
+                                <label  for="{{.}}" > {{.}}</label>
+                            </fieldset>
+                        {{end}}
+                    </div>
+                    <div class="tab-pane fade row" id="ex1-pills-2" role="tabpanel" aria-labelledby="ex1-tab-2">
+                        <fieldset class="d-inline-block col-3 mx-3">
+                            <input form="search-form" type="checkbox" name="search-type[]" value="vegetarian" id="vegetarian" />
+                            <label  for="vegetarian">Vegetarian</label>
+                        </fieldset>
+                        <fieldset class="d-inline-block col-3 mx-3">
+                            <input form="search-form" type="checkbox" name="search-type[]" value="non vegetarian" id="non-vegetarian" />
+                            <label for="non-vegetarian">Non Vegetarian</label>
+                        </fieldset>
+                        <fieldset class="d-inline-block col-3 mx-3">
+                            <input form="search-form" type="checkbox" name="search-type[]" value="eggetarian" id="eggetarian" />
+                            <label for="eggetarian">Eggetarian</label>
+                        </fieldset>
+                        <fieldset class="d-inline-block col-3 mx-3">
+                            <input form="search-form" type="checkbox" name="search-type[]" value="vegan" id="vegan" />
+                            <label for="vegan">Vegan</label>
+                        </fieldset>
+
+                    </div>
+                    <div class="tab-pane fade row" id="ex1-pills-3" role="tabpanel" aria-labelledby="ex1-tab-3">
+                        <fieldset class="d-inline-block col-3 mx-3">
+                            <input form="search-form" type="checkbox" name="search-meals[]" value="breakfast" id="breakfast" />
+                            <label  for="breakfast">Breakfast</label>
+                        </fieldset>
+                        <fieldset class="d-inline-block col-3 mx-3">
+                            <input form="search-form" type="checkbox" name="search-meals[]" value="brunch" id="brunch" />
+                            <label for="brunch">Brunch</label>
+                        </fieldset>
+                        <fieldset class="d-inline-block col-3 mx-3">
+                            <input form="search-form" type="checkbox" name="search-meals[]" value="lunch" id="lunch" />
+                            <label for="lunch">Lunch</label>
+                        </fieldset>
+                        <fieldset class="d-inline-block col-3 mx-3">
+                            <input form="search-form" type="checkbox" name="search-meals[]" value="snack" id="snack" />
+                            <label for="snack">Snack</label>
+                        </fieldset>
+                        <fieldset class="d-inline-block col-3 mx-3">
+                            <input form="search-form" type="checkbox" name="search-meals[]" value="dinner" id="dinner" />
+                            <label for="dinner">Dinner</label>
+                        </fieldset>
+                    </div>
+                    <div class="tab-pane fade row" id="ex1-pills-4" role="tabpanel" aria-labelledby="ex1-tab-4">
+                        <fieldset class="d-inline-block col-5 mx-4">
+                            <input form="search-form" type="radio" name="search-sort" value="title" id="title"/>
+                            <label for="title">Title (A - Z)</label>
+                        </fieldset>
+                        <fieldset class="d-inline-block col-5 mx-4">
+                            <input form="search-form" type="radio" name="search-sort" value="title desc" id="titleDesc"/>
+                            <label for="titleDesc">Title (Z - A)</label>
+                        </fieldset>
+                        <fieldset class="d-inline-block col-5 mx-4">
+                            <input form="search-form" type="radio" name="search-sort" value="rating" id="rating"/>
+                            <label for="rating">Rating (High To Low)</label>
+                        </fieldset>
+                        <fieldset class="d-inline-block col-5 mx-4">
+                            <input form="search-form" type="radio" name="search-sort" value="rating desc" id="ratingDesc"/>
+                            <label for="ratingDesc">Rating (Low To High)</label>
+                        </fieldset>
+                        <fieldset class="d-inline-block col-5 mx-4">
+                            <input form="search-form" type="radio" name="search-sort" value="recipes.created_at" id="date"/>
+                            <label for="date">Date (Old To New)</label>
+                        </fieldset>
+                        <fieldset class="d-inline-block col-5 mx-4">
+                            <input form="search-form" type="radio" name="search-sort" value="recipes.created_at desc" id="dateDesc"/>
+                            <label for="dateDesc">Date (New To Old)</label>
+                        </fieldset>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 <div class="container-fluid">
     <div class="album py-4 bg-light">
         <div class="container">
@@ -239,7 +262,6 @@
                                                                         <br>
                                                                         <input type="submit" name="submit"/>
                                                                     </form>
-                                                                    <form>
                                                                     <div id="rating_display" style="display: none">
                                                                         <label class="fs-2">Rating</label>
                                                                         <br><br>
@@ -249,16 +271,19 @@
                                                                             <i class="fa fa-star fs-2 star3" data-rate="3"></i>
                                                                             <i class="fa fa-star fs-2 star4" data-rate="4"></i>
                                                                             <i class="fa fa-star fs-2 star5" data-rate="5"></i>
-{{/*                                                                            <input type="hidden" id="rating-count" name="rating-count" value="0">*/}}
                                                                         </div>
                                                                         <br>
                                                                         <label class="fs-2 w-20">Review</label>
                                                                         <br><br>
                                                                         <div>
-                                                                            <textarea class="w-100 rounded" name="rate-2" id="rate-2" rows="5" required></textarea>
+                                                                            <textarea class="w-100 rounded" name="rate-2" id="rate-2" rows="5" required readonly></textarea>
                                                                         </div>
                                                                     </div>
-                                                                    </form>
+                                                                </td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td id="user_reviews" colspan="2">
+
                                                                 </td>
                                                             </tr>
                                                             </tbody>
@@ -278,18 +303,13 @@
     </div>
 </div>
 
-</body>
 <script>
     $("#searchbtn").click(function () {
-        str = $("#search").val()
-        url = "/search?query=" + str
-        location.href = url
+        $("#search-form").submit()
     });
     $("#search").keydown(function (e) {
         if (e.keyCode == 13) {
-            str = $("#search").val()
-            url = "/search?query=" + str
-            location.href = url
+            $("#search-form").submit()
         }
     });
     if ($("#video").attr("src") == "") {
@@ -314,6 +334,44 @@
             }
 
         } else {
+            console.log("not found");
+        }
+    });
+    $(async function(){
+        const response = await fetch('http://localhost:8080/api/review/GetAll_review/'+{{.recipe.ID}}, {
+            method: "POST",
+        });
+        const data = await response.json();
+        if (data.length != 0) {
+            console.log(await data);
+            str = `<h3>Other User's Reviews</h3>`
+            $("#user_reviews").append(str)
+            data.forEach(function (rating) {
+                str = `
+                        <div>
+                            <p style="margin: 0">Rating By `
+                str += rating['emailID']
+                str += `</p>
+                        <p style="margin-bottom: 0">`
+                for (let i = 0; i < 5; i++) {
+                    if (i < rating["rating"]) {
+                        str += `<i class="fa fa-star selected" data-rate="` + i + `"></i>`
+                    } else {
+                        str += `<i class="fa fa-star" data-rate="` + i + `"></i>`
+                    }
+                }
+                str += `</p>
+                            <p style="margin-bottom: 0">Review</p>
+                            <p style="margin-bottom: 0">
+                                <p style="margin-bottom: 0">`
+                str += rating['comment']
+                str += `</p>
+                            </p>
+                        </div>`
+                $("#user_reviews").append(str)
+                    });
+        } else {
+            $("#user_reviews").addClass("d-none")
             console.log("not found");
         }
     });
@@ -358,4 +416,5 @@
     })(jQuery);
 
 </script>
+</body>
 </html>

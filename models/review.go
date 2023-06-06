@@ -27,3 +27,11 @@ func GetReviewByEmailID(email string, id int) Review {
 	db.Where("email_id=? AND recipe_id=?", email, id).Find(&review)
 	return review
 }
+
+func GetReviewByRecipeID(id int) []Review {
+	var review []Review
+	db := initializers.GetConnection()
+	defer initializers.CloseConnection(db)
+	db.Where("recipe_id=?", id).Limit(3).Order("random()").Find(&review)
+	return review
+}
