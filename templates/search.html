@@ -84,12 +84,6 @@
                 </ul>
                 <div class="tab-content" id="ex1-content">
                     <div class="tab-pane fade show active row" id="ex1-pills-1" role="tabpanel" aria-labelledby="ex1-tab-1">
-                        {{range .categories}}
-                            <fieldset class="d-inline-block col-3 mx-3">
-                                <input form="search-form" class="" type="checkbox" id="{{.}}" name="search-categories[]" value="{{.}}">
-                                <label  for="{{.}}" > {{.}}</label>
-                            </fieldset>
-                        {{end}}
                     </div>
                     <div class="tab-pane fade row" id="ex1-pills-2" role="tabpanel" aria-labelledby="ex1-tab-2">
                         <fieldset class="d-inline-block col-3 mx-3">
@@ -217,6 +211,20 @@
         if (e.keyCode == 13) {
             $("#search-form").submit()
         }
+    });
+    $(document).ready(async function() {
+        const response = await fetch('http://localhost:8080/api/category/Get_Categories', {
+            method: "POST",
+        });
+        const data = await response.json();
+        var str = ""
+        data.forEach(function (cate) {
+            str += `<fieldset class="d-inline-block col-3 mx-3">`
+            str += `<input form="search-form" class="mx-1" type="checkbox" name="search-categories[]" value="` + cate + `" id="` + cate + `" />`
+            str += `<label for="` + cate + `">` + cate + ` </label>`
+            str += `</fieldset>`
+        })
+        $("#ex1-pills-1").append(str)
     });
 </script>
 </html>

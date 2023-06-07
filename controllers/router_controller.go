@@ -98,24 +98,21 @@ func GoogleCallback(context *gin.Context) {
 func HomePage(context *gin.Context) {
 	//recipe := recipeController.FindAll()
 	context.HTML(http.StatusOK, "home.html", gin.H{
-		"categories": models.FindAllCategoriesName(),
-		"recipes":    models.GetAllRecipe(),
+		"recipes": models.GetAllRecipe(),
 	})
 }
 
 func AddRecipePage(context *gin.Context) {
 	email, _ := context.Get("email")
 	context.HTML(http.StatusOK, "add_recipe.html", gin.H{
-		"email":      email,
-		"categories": models.FindAllCategoriesName(),
+		"email": email,
 	})
 }
 
 func MyRecipePage(context *gin.Context) {
 	email, _ := context.Get("email")
 	context.HTML(http.StatusOK, "my_recipe.html", gin.H{
-		"categories": models.FindAllCategoriesName(),
-		"recipes":    recipeController.FindAllWithEmail(email.(string)),
+		"recipes": recipeController.FindAllWithEmail(email.(string)),
 	})
 }
 
@@ -150,11 +147,9 @@ func AddRecipeApi(context *gin.Context) {
 func EditRecipePage(context *gin.Context) {
 	email, _ := context.Get("email")
 	id := context.Param("id")
-	categories := models.FindAllCategoriesName()
 	context.HTML(http.StatusOK, "edit_recipe.html", gin.H{
-		"ID":         id,
-		"email":      email,
-		"categories": categories,
+		"ID":    id,
+		"email": email,
 	})
 }
 
@@ -198,12 +193,9 @@ func FindRecipeByID(context *gin.Context) {
 func FullRecipePage(context *gin.Context) {
 	id := context.Param("id")
 	email, _ := context.Get("email")
-	recipe := recipeController.FindByID(id)
-	categories := models.FindAllCategoriesName()
 	context.HTML(http.StatusOK, "full_recipe_page.html", gin.H{
-		"email":      email,
-		"recipe":     recipe,
-		"categories": categories,
+		"email":  email,
+		"recipe": recipeController.FindByID(id),
 	})
 }
 
@@ -218,8 +210,7 @@ func AddReviewApi(context *gin.Context) {
 func GetReviewApi(context *gin.Context) {
 	id := context.Param("id")
 	email, _ := context.Get("email")
-	rating := reviewController.GetReviewByEmailID(email.(string), id)
-	context.JSON(http.StatusOK, rating)
+	context.JSON(http.StatusOK, reviewController.GetReviewByEmailID(email.(string), id))
 }
 
 func SearchApi(context *gin.Context) {
@@ -228,11 +219,8 @@ func SearchApi(context *gin.Context) {
 	if err != nil {
 		log.Println(err)
 	}
-	recipe := models.SearchRecipe(searchStruct)
-	categories := models.FindAllCategoriesName()
 	context.HTML(http.StatusOK, "search.html", gin.H{
-		"recipes":    recipe,
-		"categories": categories,
+		"recipes": models.SearchRecipe(searchStruct),
 	})
 }
 

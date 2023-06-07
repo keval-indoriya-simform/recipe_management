@@ -2,10 +2,8 @@ package models
 
 import (
 	"database/sql"
-	"fmt"
 	"github.com/keval-indoriya-simform/recipe_management/initializers"
 	"gorm.io/gorm"
-	"log"
 	"strings"
 )
 
@@ -77,14 +75,12 @@ func GetRecipeByEmail(email string) []map[string]interface{} {
 
 func GetRecipeByID(id int) map[string]interface{} {
 	var recipe map[string]interface{}
-	log.Println(id)
-	fmt.Println(DB.Debug().Model(Recipe{}).Select("recipes.*,FLOOR(AVG(reviews.rating)) AS avg_rating ,STRING_AGG(distinct(categories.name),', ') AS categories").
+	DB.Model(Recipe{}).Select("recipes.*,FLOOR(AVG(reviews.rating)) AS avg_rating ,STRING_AGG(distinct(categories.name),', ') AS categories").
 		Joins("left JOIN recipe_categories ON recipe_categories.recipe_id = recipes.id"+
 			" left JOIN categories ON categories.id = recipe_categories.category_id"+
 			" left JOIN reviews ON reviews.recipe_id = recipes.id").Where("recipes.id=?", id).
-		Group("recipes.id, reviews.recipe_id").Find(&recipe).Error)
+		Group("recipes.id, reviews.recipe_id").Find(&recipe)
 	//DB.Model(Recipe{}).Where("id=?", id).Find(&recipe)
-	log.Println(recipe)
 	//DB.Model(Review{}).Select("floor(avg(rating))").Where("recipe_id=?", recipe.ID).Group("recipe_id").Find(&recipe.AvgRating)
 	return recipe
 }

@@ -82,12 +82,7 @@
         </ul>
         <div class="tab-content" id="ex1-content">
           <div class="tab-pane fade show active row" id="ex1-pills-1" role="tabpanel" aria-labelledby="ex1-tab-1">
-            {{range .categories}}
-              <fieldset class="d-inline-block col-3 mx-3">
-                <input form="search-form" class="" type="checkbox" id="src{{.}}" name="search-categories[]" value="{{.}}">
-                <label  for="src{{.}}" > {{.}}</label>
-              </fieldset>
-            {{end}}
+
           </div>
           <div class="tab-pane fade row" id="ex1-pills-2" role="tabpanel" aria-labelledby="ex1-tab-2">
             <fieldset class="d-inline-block col-3 mx-3">
@@ -202,13 +197,7 @@
     </div>
     <div class="form-group form-control cate">
       <p class="d-inline">Categories :</p>
-      <div class="d-inline ">
-        {{range .categories}}
-          <fieldset class="d-inline-block">
-            <input type="checkbox" class="categories_checkbox" name="categories[]" value="{{ .}}" id="{{ .}}" />
-            <label for="{{ .}}">{{ .}}</label>
-          </fieldset>
-        {{end}}
+      <div class="d-inline " id="categories-holder">
       </div>
     </div>
     <div class="form-group">
@@ -264,7 +253,28 @@
       $("#search-form").submit()
     }
   });
+
   $(document).ready(async function() {
+    const category = await fetch('http://localhost:8080/api/category/Get_Categories', {
+      method: "POST",
+    });
+    const categories = await category.json();
+    var str = ""
+    categories.forEach(function (cate) {
+      str += `<fieldset class="d-inline-block">`
+      str += `<input class="mx-1 categories_checkbox" type="checkbox" name="categories[]" value="` + cate + `" id="` + cate + `" />`
+      str += `<label for="` + cate + `">` + cate + ` </label>`
+      str += `</fieldset>`
+    })
+    $("#categories-holder").append(str)
+    str = ""
+    categories.forEach(function (cate) {
+      str += `<fieldset class="d-inline-block col-3 mx-3">`
+      str += `<input form="search-form" class="mx-1" type="checkbox" name="search-categories[]" value="` + cate + `" id="src` + cate + `" />`
+      str += `<label for="src` + cate + `">` + cate + ` </label>`
+      str += `</fieldset>`
+    })
+    $("#ex1-pills-1").append(str)
     const id = $("#id").val();
     const response = await fetch('http://localhost:8080/api/recipe/findrecipe/'+id, {
       method: "POST",
@@ -296,7 +306,7 @@
     if (data["category"] != "") {
       const arr = data['categories'].split(', ')
       arr.forEach(function (category) {
-        checkboxes = $(".categories_checkbox")
+        const checkboxes = $(".categories_checkbox");
         checkboxes.each(function () {
           if (this.value === category) {
             this.checked = true
