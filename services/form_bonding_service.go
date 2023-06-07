@@ -23,7 +23,7 @@ type RecipeForm struct {
 	Categories      []string `json:"category,omitempty" form:"categories[]"`
 }
 
-func StructFromRecipeForm(form RecipeForm, filenames []string) models.Recipe {
+func StructFromRecipeForm(form RecipeForm, filenames string) models.Recipe {
 	var Recipe models.Recipe
 	var Categories []models.Category
 	for _, val := range form.Categories {
@@ -41,7 +41,7 @@ func StructFromRecipeForm(form RecipeForm, filenames []string) models.Recipe {
 		Type:            form.Type,
 		Meals:           strings.Join(form.Meals, ", "),
 		DifficultyLevel: form.DifficultyLevel,
-		ImageURL:        strings.Join(filenames, ", "),
+		ImageURL:        filenames,
 		VideoURL:        form.VideoURL,
 		EmailID:         form.EmailID,
 		Categories:      Categories,

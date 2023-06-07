@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Full Recipe</title>
+    <link rel="icon" type="image/x-icon" href="/css/favicon.ico">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-KK94CHFLLe+nY2dmCWGMq91rCGa5gtU4mk92HdvYe+M/SXH301p5ILy+dN9+nJOZ" crossorigin="anonymous">
     <link rel="stylesheet"
           href="https://use.fontawesome.com/releases/v5.1.0/css/all.css"
@@ -143,11 +144,11 @@
                         </fieldset>
                         <fieldset class="d-inline-block col-5 mx-4">
                             <input form="search-form" type="radio" name="search-sort" value="rating" id="rating"/>
-                            <label for="rating">Rating (High To Low)</label>
+                            <label for="rating">Rating (Low To High)</label>
                         </fieldset>
                         <fieldset class="d-inline-block col-5 mx-4">
                             <input form="search-form" type="radio" name="search-sort" value="rating desc" id="ratingDesc"/>
-                            <label for="ratingDesc">Rating (Low To High)</label>
+                            <label for="ratingDesc">Rating (High To Low)</label>
                         </fieldset>
                         <fieldset class="d-inline-block col-5 mx-4">
                             <input form="search-form" type="radio" name="search-sort" value="recipes.created_at" id="date"/>
@@ -169,7 +170,7 @@
             <div class="row justify-content-center">
                 <div class="col-12">
                     <div  class="card mb-2 shadow-sm">
-                        <img class="mx-auto my-2" width="560" height="315" src="/Upload/{{ .recipe.ImageURL}}"></img>
+                        <img class="mx-auto my-2" width="560" height="315" src="/Upload/{{ .recipe.image_url}}"></img>
                         <div class="card-body">
                             <section class="intro">
                                 <div class="container">
@@ -181,61 +182,55 @@
                                                         <table class="table table-striped mb-0">
                                                             <thead class="bg-info text-center">
                                                             <tr>
-                                                                <th class="text-dark" colspan="2" scope="col">{{.recipe.Title}}</th>
+                                                                <th class="text-dark" colspan="2" scope="col">{{.recipe.title}}</th>
                                                             </tr>
                                                             </thead>
                                                             <tbody>
                                                                 <tr>
                                                                     <td class="w-25">Description :</td>
-                                                                    <td class="w-75">{{.recipe.Description}}</td>
+                                                                    <td class="w-75">{{.recipe.description}}</td>
                                                                 </tr>
                                                                 <tr>
                                                                     <td class="w-25">Average Rating :</td>
-                                                                    <td class="w-75">{{.recipe.AvgRating}}</td>
+                                                                    <td class="w-75">{{.recipe.avg_rating}}</td>
                                                                 </tr>
                                                                 <tr>
                                                                     <td class="w-25">Cooking Time :</td>
-                                                                    <td class="w-75">{{.recipe.CookingTime}} Minutes</td>
+                                                                    <td class="w-75">{{.recipe.cooking_time}} Minutes</td>
                                                                 </tr>
                                                                 <tr>
                                                                     <td class="w-25">Serves :</td>
-                                                                    <td class="w-75">{{.recipe.Serving}} Person</td>
+                                                                    <td class="w-75">{{.recipe.serving}} Person</td>
                                                                 </tr>
                                                                 <tr>
                                                                     <td class="w-25">Type :</td>
-                                                                    <td class="w-75">{{.recipe.Type}}</td>
+                                                                    <td class="w-75">{{.recipe.type}}</td>
                                                                 </tr>
                                                                 <tr>
                                                                     <td class="w-25">Courses :</td>
-                                                                    <td class="w-75">{{.recipe.Meals}}</td>
+                                                                    <td class="w-75">{{.recipe.meals}}</td>
                                                                 </tr>
                                                                 <tr>
                                                                     <td class="w-25">Categories :</td>
                                                                     <td class="w-75">
-                                                                        {{ range .recipe.Categories}}
-                                                                            {{.Name}} <br>
-                                                                        {{end}}
+                                                                        {{.recipe.categories}}
                                                                     </td>
                                                                 </tr>
                                                                 <tr>
-                                                                    <td class="w-25">Courses :</td>
-                                                                    <td class="w-75">{{.recipe.Meals}}</td>
-                                                                </tr>
-                                                                <tr>
                                                                     <td class="w-25">Difficulty Level : </td>
-                                                                    <td class="w-75">{{.recipe.DifficultyLevel}}</td>
+                                                                    <td class="w-75">{{.recipe.difficulty_level}}</td>
                                                                 </tr>
                                                                 <tr>
                                                                     <td class="w-25">Ingredients : </td>
-                                                                    <td class="w-75" style="white-space: break-spaces;">{{.recipe.Ingredients}}</td>
+                                                                    <td class="w-75" style="white-space: break-spaces;">{{.recipe.ingredients}}</td>
                                                                 </tr>
                                                                 <tr>
                                                                     <td class="w-25">Cooking Steps : </td>
-                                                                    <td class="w-75" id="steps"><p class="w-100" style="white-space: break-spaces;">{{.recipe.CookingSteps}}</p></td>
+                                                                    <td class="w-75" id="steps"><p class="w-100" style="white-space: break-spaces;">{{.recipe.cooking_steps}}</p></td>
                                                                 </tr>
                                                                 <tr id="video-block">
                                                                     <td class="text-center" colspan="2">
-                                                                        <iframe width="560" id="video" height="315" src="{{.recipe.VideoURL}}"></iframe>
+                                                                        <iframe width="560" id="video" height="315" src="{{.recipe.video_url}}"></iframe>
                                                                     </td>
                                                                 </tr>
                                                             <tr>
@@ -253,7 +248,7 @@
                                                                         </div>
                                                                         <br>
                                                                         <input type="hidden" id="email" name="email" value="{{.email}}">
-                                                                        <input type="hidden" id="recipe_id" name="recipe_id" value="{{.recipe.ID}}">
+                                                                        <input type="hidden" id="recipe_id" name="recipe_id" value="{{.recipe.id}}">
                                                                         <label class="fs-2 w-20">Review</label>
                                                                         <br><br>
                                                                         <div>
@@ -283,7 +278,6 @@
                                                             </tr>
                                                             <tr>
                                                                 <td id="user_reviews" colspan="2">
-
                                                                 </td>
                                                             </tr>
                                                             </tbody>
@@ -318,11 +312,11 @@
 
     $(async function(){
         $('#better-rating-form').betterRating();
-        const response = await fetch('http://localhost:8080/api/review/Get_review/'+{{.recipe.ID}}, {
+        const response = await fetch('http://localhost:8080/api/review/Get_review/'+{{.recipe.id}}, {
             method: "POST",
         });
         const data = await response.json();
-        if (data["ID"] !== 0) {
+        if (data != undefined && data["ID"] !== 0) {
             console.log(await data);
             $('#better-rating-form').addClass("d-none");
             $('#rating_display').css("display", "block");
@@ -338,19 +332,17 @@
         }
     });
     $(async function(){
-        const response = await fetch('http://localhost:8080/api/review/GetAll_review/'+{{.recipe.ID}}, {
+        const response = await fetch('http://localhost:8080/api/review/GetAll_review/'+{{.recipe.id}}, {
             method: "POST",
         });
         const data = await response.json();
         if (data.length != 0) {
-            console.log(await data);
             str = `<h3>Other User's Reviews</h3>`
             $("#user_reviews").append(str)
             data.forEach(function (rating) {
-                str = `
-                        <div>
+                str = `<div>
                             <p style="margin: 0">Rating By `
-                str += rating['emailID']
+                str += rating['email_id']
                 str += `</p>
                         <p style="margin-bottom: 0">`
                 for (let i = 0; i < 5; i++) {
@@ -364,7 +356,7 @@
                             <p style="margin-bottom: 0">Review</p>
                             <p style="margin-bottom: 0">
                                 <p style="margin-bottom: 0">`
-                str += rating['comment']
+                    str += rating['comment']
                 str += `</p>
                             </p>
                         </div>`
@@ -395,7 +387,6 @@
             },
             getRating: function(settings) {
                 var self = this;
-
                 $('.rating i').on('click', function(){
                     $('#rating-count').val($(this).data('rate'));
                     $(this).parent().find('i:lt(' + ($(this).index() + 1) + ')').addClass('selected');

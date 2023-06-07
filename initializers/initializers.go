@@ -8,7 +8,7 @@ import (
 	"log"
 )
 
-func errorCheck(err error) {
+func ErrorCheck(err error) {
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -16,7 +16,7 @@ func errorCheck(err error) {
 
 func GetConnection() *gorm.DB {
 	myEnv, err := godotenv.Read(".env")
-	errorCheck(err)
+	ErrorCheck(err)
 	host := myEnv["HOST"]
 	dbPort := myEnv["DBPORT"]
 	user := myEnv["USERNAME"]
@@ -28,15 +28,18 @@ func GetConnection() *gorm.DB {
 	db, err := gorm.Open(postgres.New(postgres.Config{
 		DSN:                  dbURI,
 		PreferSimpleProtocol: true,
-	}), &gorm.Config{})
+	}), &gorm.Config{
+		SkipDefaultTransaction: true,
+		PrepareStmt:            true,
+	})
 
-	errorCheck(err)
+	ErrorCheck(err)
 	return db
 }
 
 func CloseConnection(db *gorm.DB) {
 	db1, err := db.DB()
-	errorCheck(err)
+	ErrorCheck(err)
 	err = db1.Close()
-	errorCheck(err)
+	ErrorCheck(err)
 }

@@ -7,9 +7,9 @@ import (
 
 type RecipeService interface {
 	Save(recipe *models.Recipe)
-	FindAll() []models.Recipe
-	FindAllWithEmail(email string) []models.Recipe
-	FindByID(id string) models.Recipe
+	FindAll() []map[string]interface{}
+	FindAllWithEmail(email string) []map[string]interface{}
+	FindByID(id string) map[string]interface{}
 	Update(recipe *models.Recipe)
 	Delete(id string)
 }
@@ -26,11 +26,11 @@ func (service *recipeService) Save(recipe *models.Recipe) {
 	models.InsertRecipeData(recipe)
 }
 
-func (service *recipeService) FindAll() []models.Recipe {
+func (service *recipeService) FindAll() []map[string]interface{} {
 	return models.GetAllRecipe()
 }
 
-func (service *recipeService) FindAllWithEmail(email string) []models.Recipe {
+func (service *recipeService) FindAllWithEmail(email string) []map[string]interface{} {
 	return models.GetRecipeByEmail(email)
 }
 
@@ -38,7 +38,7 @@ func (service *recipeService) Update(recipe *models.Recipe) {
 	models.EditRecipeData(recipe)
 }
 
-func (service *recipeService) FindByID(id string) models.Recipe {
+func (service *recipeService) FindByID(id string) map[string]interface{} {
 	ID, _ := strconv.Atoi(id)
 	return models.GetRecipeByID(ID)
 }

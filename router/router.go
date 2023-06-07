@@ -9,8 +9,7 @@ import (
 )
 
 var (
-	Server          = gin.Default()
-	loginController = controllers.NewLoginController()
+	Server = gin.Default()
 )
 
 func init() {
@@ -29,7 +28,7 @@ func init() {
 	Server.GET("/home", middleware.AuthorizeJWT(), controllers.HomePage)
 	Server.GET("/addrecipe", middleware.AuthorizeJWT(), controllers.AddRecipePage)
 	Server.GET("/editrecipe/:id", middleware.AuthorizeJWT(), controllers.EditRecipePage)
-	Server.POST("/findrecipe/:id", middleware.AuthorizeJWT(), controllers.FindRecipeByID)
+
 	Server.GET("/fullrecipe/:id", middleware.AuthorizeJWT(), controllers.FullRecipePage)
 	Server.GET("/myrecipe", middleware.AuthorizeJWT(), controllers.MyRecipePage)
 	Server.POST("/search", middleware.AuthorizeJWT(), controllers.SearchApi)
@@ -38,10 +37,14 @@ func init() {
 	recipeGroup := apiGroup.Group("recipe")
 	recipeGroup.POST("Add_recipe", controllers.AddRecipeApi)
 	recipeGroup.POST("Edit_recipe", controllers.EditRecipeApi)
+	recipeGroup.POST("/findrecipe/:id", controllers.FindRecipeByID)
 	recipeGroup.GET("Delete_recipe/:id", controllers.DeleteRecipeApi)
 
 	reviewGroup := apiGroup.Group("review")
 	reviewGroup.POST("Add_review", controllers.AddReviewApi)
 	reviewGroup.POST("Get_review/:id", controllers.GetReviewApi)
 	reviewGroup.POST("GetAll_review/:id", controllers.GetAllReviewsByRecipeIDApi)
+
+	categoryGroup := apiGroup.Group("category")
+	categoryGroup.POST("Get_Categories", controllers.GetAllCategories)
 }

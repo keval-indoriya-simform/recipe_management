@@ -6,9 +6,9 @@ import (
 )
 
 type RecipeController interface {
-	FindAllWithEmail(email string) []models.Recipe
-	FindAll() []models.Recipe
-	FindByID(id string) models.Recipe
+	FindAllWithEmail(email string) []map[string]interface{}
+	FindAll() []map[string]interface{}
+	FindByID(id string) map[string]interface{}
 	Save(recipe *models.Recipe)
 	Delete(id string)
 	Update(recipe *models.Recipe)
@@ -24,7 +24,7 @@ func NewRecipeController(serv services.RecipeService) RecipeController {
 	}
 }
 
-func (c *controller) FindAll() []models.Recipe {
+func (c *controller) FindAll() []map[string]interface{} {
 	return c.service.FindAll()
 }
 
@@ -32,7 +32,7 @@ func (c *controller) Save(recipe *models.Recipe) {
 	c.service.Save(recipe)
 }
 
-func (c *controller) FindAllWithEmail(email string) []models.Recipe {
+func (c *controller) FindAllWithEmail(email string) []map[string]interface{} {
 	return c.service.FindAllWithEmail(email)
 }
 
@@ -40,7 +40,7 @@ func (c *controller) Update(recipe *models.Recipe) {
 	c.service.Update(recipe)
 }
 
-func (c *controller) FindByID(id string) models.Recipe {
+func (c *controller) FindByID(id string) map[string]interface{} {
 	return c.service.FindByID(id)
 }
 

@@ -2,17 +2,15 @@ package middelware
 
 import (
 	"github.com/gin-contrib/sessions"
+	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/keval-indoriya-simform/recipe_management/services"
 	"log"
 	"net/http"
-
-	"github.com/gin-gonic/gin"
 )
 
 func AuthorizeJWT() gin.HandlerFunc {
 	return func(context *gin.Context) {
-
 		session := sessions.Default(context)
 		tokenstr := session.Get("token")
 		if tokenstr == nil {

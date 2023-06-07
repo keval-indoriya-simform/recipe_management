@@ -7,8 +7,8 @@ import (
 
 type ReviewController interface {
 	Save(review *models.Review)
-	GetReviewByEmailID(email string, id string) models.Review
-	GetReviewByRecipeID(id string) []models.Review
+	GetReviewByEmailID(email string, id string) map[string]interface{}
+	GetReviewByRecipeID(id string) []map[string]interface{}
 }
 
 type reviewcontroller struct {
@@ -25,10 +25,10 @@ func (c *reviewcontroller) Save(review *models.Review) {
 	c.service.Save(review)
 }
 
-func (c *reviewcontroller) GetReviewByEmailID(email string, id string) models.Review {
+func (c *reviewcontroller) GetReviewByEmailID(email string, id string) map[string]interface{} {
 	return c.service.GetReviewByEmailID(email, id)
 }
 
-func (c *reviewcontroller) GetReviewByRecipeID(id string) []models.Review {
+func (c *reviewcontroller) GetReviewByRecipeID(id string) []map[string]interface{} {
 	return c.service.GetReviewByRecipeID(id)
 }

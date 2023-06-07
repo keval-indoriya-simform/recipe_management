@@ -1,20 +1,55 @@
 package models
 
 import (
-	"github.com/keval-indoriya-simform/recipe_management/initializers"
 	"gorm.io/gorm"
 )
 
 type Category struct {
 	gorm.Model
-	Name    string   `json:"name,omitempty" form:"categories" gorm:"notnull,unique"`
-	Recipes []Recipe `json:"recipes,omitempty" gorm:"->;many2many:recipe_categories;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
+	Name    string   `gorm:"notnull,unique" json:"name,omitempty" form:"categories"`
+	Recipes []Recipe `gorm:"->;many2many:recipe_categories;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"recipes,omitempty"`
 }
 
 func FindAllCategoriesName() []string {
-	db := initializers.GetConnection()
-	defer initializers.CloseConnection(db)
 	var categories []string
-	db.Model(Category{}).Select("name").Find(&categories)
+	DB.Model(Category{}).Select("name").Find(&categories)
 	return categories
 }
+
+//categories := []models.Category{
+//	{Name: "Low Cal"},
+//	{Name: "Diabetic"},
+//	{Name: "Low Carb"},
+//	{Name: "Low Cholesterol"},
+//	{Name: "Balanced Diet"},
+//	{Name: "Low Sodium"},
+//	{Name: "High Fiber"},
+//	{Name: "High Protein"},
+//	{Name: "High Carb"},
+//	{Name: "North Indian"},
+//	{Name: "South Indian"},
+//	{Name: "Chinese"},
+//	{Name: "Asian"},
+//	{Name: "Italian"},
+//	{Name: "Mughlai"},
+//	{Name: "American"},
+//	{Name: "Punjabi"},
+//	{Name: "Mexican"},
+//	{Name: "Gujarati"},
+//	{Name: "Fusion"},
+//	{Name: "Thai"},
+//	{Name: "Sattvik"},
+//	{Name: "Maharashtrian"},
+//	{Name: "Rajasthani"},
+//	{Name: "Malabar Cuisine"},
+//	{Name: "Bengali"},
+//	{Name: "Bihari"},
+//	{Name: "Konkani"},
+//	{Name: "Goan"},
+//	{Name: "Kashmiri"},
+//	{Name: "Vietnamese"},
+//	{Name: "Middle Eastern"},
+//	{Name: "Parsi"},
+//	{Name: "French"},
+//	{Name: "Australian"},
+//}

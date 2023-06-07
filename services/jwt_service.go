@@ -50,7 +50,7 @@ func (jwtSrv jwtService) GenerateToken(user models.Login) string {
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
-	t, err := token.SignedString([]byte(jwtSrv.secretKey))
+	t, err := token.SignedString(jwtSrv.secretKey)
 	if err != nil {
 		panic(err)
 	}
@@ -62,6 +62,6 @@ func (jwtSrv jwtService) ValidateToken(tokenString string) (*jwt.Token, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 		}
-		return []byte(jwtSrv.secretKey), nil
+		return jwtSrv.secretKey, nil
 	})
 }

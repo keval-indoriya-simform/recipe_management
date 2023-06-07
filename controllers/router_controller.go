@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"database/sql"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 	"github.com/goccy/go-json"
@@ -97,74 +96,53 @@ func GoogleCallback(context *gin.Context) {
 }
 
 func HomePage(context *gin.Context) {
-
-	db := initializers.GetConnection()
-	defer initializers.CloseConnection(db)
 	//recipe := recipeController.FindAll()
-	recipe := models.GetAllRecipe()
-	categories := models.FindAllCategoriesName()
 	context.HTML(http.StatusOK, "home.html", gin.H{
-		"categories": categories,
-		"recipes":    recipe,
+		"categories": models.FindAllCategoriesName(),
+		"recipes":    models.GetAllRecipe(),
 	})
 }
 
 func AddRecipePage(context *gin.Context) {
-	//key, _ := services.NewJWTService().ValidateToken(token.(string))
-	//claims := key.Claims.(jwt.MapClaims)
 	email, _ := context.Get("email")
-	categories := models.FindAllCategoriesName()
 	context.HTML(http.StatusOK, "add_recipe.html", gin.H{
 		"email":      email,
-		"categories": categories,
+		"categories": models.FindAllCategoriesName(),
 	})
 }
 
 func MyRecipePage(context *gin.Context) {
 	email, _ := context.Get("email")
-	categories := models.FindAllCategoriesName()
-	recipe := recipeController.FindAllWithEmail(email.(string))
 	context.HTML(http.StatusOK, "my_recipe.html", gin.H{
-		"categories": categories,
-		"recipes":    recipe,
+		"categories": models.FindAllCategoriesName(),
+		"recipes":    recipeController.FindAllWithEmail(email.(string)),
 	})
 }
 
 func Logout(context *gin.Context) {
 	session := sessions.Default(context)
 	session.Clear()
-	err := session.Save()
-	if err != nil {
+	if err := session.Save(); err != nil {
 		log.Fatal(err)
-	} else {
-		//context.String(http.StatusOK, "logout")
-		context.Redirect(http.StatusFound, "/login")
 	}
+	context.Redirect(http.StatusFound, "/login")
 }
 
 func AddRecipeApi(context *gin.Context) {
 	var recipe services.RecipeForm
 	err := context.Bind(&recipe)
-	form, err := context.MultipartForm()
-	if err != nil {
+	form, multipartError := context.MultipartForm()
+	if multipartError != nil {
 		context.String(http.StatusBadRequest, "get form err: %s", err.Error())
 		log.Fatal(err)
 	}
 	files := form.File["files"]
-	var filenames []string
-	for _, file := range files {
-		filename := filepath.Base(file.Filename)
-		filenames = append(filenames, filename)
-		dst := "./upload/" + filename
-		if err := context.SaveUploadedFile(file, dst); err != nil {
-			context.String(http.StatusBadRequest, "upload file err: %s", err.Error())
-			return
-		}
+	dst := "./upload/" + filepath.Base(files[0].Filename)
+	if err := context.SaveUploadedFile(files[0], dst); err != nil {
+		context.String(http.StatusBadRequest, "upload file err: %s", err.Error())
+		return
 	}
-	if err != nil {
-		log.Fatal(err)
-	}
-	Recipes := services.StructFromRecipeForm(recipe, filenames)
+	Recipes := services.StructFromRecipeForm(recipe, filepath.Base(files[0].Filename))
 	recipeController.Save(&Recipes)
 	context.Redirect(http.StatusFound, "/home")
 }
@@ -183,26 +161,24 @@ func EditRecipePage(context *gin.Context) {
 func EditRecipeApi(context *gin.Context) {
 	var recipe services.RecipeForm
 	err := context.Bind(&recipe)
-	form, err := context.MultipartForm()
-	if err != nil {
-		context.String(http.StatusBadRequest, "get form err: %s", err.Error())
-		log.Fatal(err)
+	initializers.ErrorCheck(err)
+	initializers.ErrorCheck(err)
+	form, multipartError := context.MultipartForm()
+	if multipartError != nil {
+		context.String(http.StatusBadRequest, "get form err: %s", multipartError.Error())
+		log.Fatal(multipartError)
 	}
-	files := form.File["files"]
-	var filenames []string
-	for _, file := range files {
-		filename := filepath.Base(file.Filename)
-		filenames = append(filenames, filename)
-		dst := "./upload/" + filename
-		if err := context.SaveUploadedFile(file, dst); err != nil {
+	files, getFileErr := form.File["files"]
+	log.Println(getFileErr)
+	if getFileErr == true {
+		dst := "./upload/" + filepath.Base(files[0].Filename)
+		if err := context.SaveUploadedFile(files[0], dst); err != nil {
 			context.String(http.StatusBadRequest, "upload file err: %s", err.Error())
 			return
 		}
 	}
-	if err != nil {
-		log.Fatal(err)
-	}
-	Recipes := services.StructFromRecipeForm(recipe, filenames)
+
+	Recipes := services.StructFromRecipeForm(recipe, filepath.Base(files[0].Filename))
 	recipeController.Update(&Recipes)
 	context.Redirect(http.StatusFound, "/fullrecipe/"+recipe.ID)
 }
@@ -247,49 +223,12 @@ func GetReviewApi(context *gin.Context) {
 }
 
 func SearchApi(context *gin.Context) {
-	type Search struct {
-		SearchKeyword string   `json:"search_keyword,omitempty" form:"search"`
-		Categories    []string `json:"categories,omitempty" form:"search-categories[]"`
-		MealTypes     []string `json:"meal_types,omitempty" form:"search-type[]"`
-		Courses       []string `json:"courses,omitempty" form:"search-meals[]"`
-		Sort          string   `json:"sort,omitempty" form:"search-sort"`
-	}
-	var searchStruct Search
+	var searchStruct models.Search
 	err := context.Bind(&searchStruct)
 	if err != nil {
 		log.Println(err)
 	}
-	db := initializers.GetConnection()
-	defer initializers.CloseConnection(db)
-	var recipe []models.Recipe
-	var courseQuery, categoriesQuery, typeQuery = "", "", ""
-	if len(searchStruct.Categories) != 0 {
-		categoriesQuery = " AND c.name IN ('" + strings.Join(searchStruct.Categories, "', '") + "')"
-	}
-	if len(searchStruct.MealTypes) != 0 {
-		typeQuery = " AND type IN ('" + strings.Join(searchStruct.MealTypes, "', '") + "')"
-	}
-	if len(searchStruct.Courses) != 0 {
-		courseQuery = " AND ("
-		for i, _ := range searchStruct.Courses {
-			courseQuery += "meals ILike '%" + searchStruct.Courses[i] + "%'"
-			if i != (len(searchStruct.Courses) - 1) {
-				courseQuery += " OR "
-			}
-		}
-		courseQuery += ")"
-	}
-	query := db.Debug().Model(models.Recipe{}).Distinct("recipes.*, avg(rating) as rating").
-		Joins("left join recipe_categories as rc on recipes.id = rc.recipe_id"+
-			" left join categories as c on rc.category_id = c.id"+
-			" left join reviews as r on r.recipe_id = recipes.id").Group("r.recipe_id, recipes.id").Where("(title ILike @keyword OR ingredients ILike @keyword OR type ILike @keyword OR meals ILike @keyword OR c.name ILike @keyword)"+categoriesQuery+typeQuery+courseQuery,
-		sql.Named("keyword", "%"+searchStruct.SearchKeyword+"%"))
-	query.Order(searchStruct.Sort).Find(&recipe)
-	for i, _ := range recipe {
-		var avgRating int = 0
-		db.Model(models.Review{}).Select("floor(avg(rating))").Where("recipe_id=?", recipe[i].ID).Group("recipe_id").Find(&avgRating)
-		recipe[i].AvgRating = avgRating
-	}
+	recipe := models.SearchRecipe(searchStruct)
 	categories := models.FindAllCategoriesName()
 	context.HTML(http.StatusOK, "search.html", gin.H{
 		"recipes":    recipe,
@@ -333,4 +272,8 @@ func MicrosoftCallback(context *gin.Context) {
 	} else {
 		context.JSON(http.StatusForbidden, nil)
 	}
+}
+
+func GetAllCategories(context *gin.Context) {
+	context.JSON(http.StatusOK, models.FindAllCategoriesName())
 }
