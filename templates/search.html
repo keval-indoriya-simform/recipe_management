@@ -216,6 +216,7 @@
     $("#apply-filter").click(function () {
         $("#search-form").submit()
     });
+    {{if .searchstruct.MealTypes}}
     srcmeals = {{.searchstruct.MealTypes}}
     srcmeals.forEach(function (meal) {
             checkboxes = $('input[name="search-type[]"]');
@@ -225,7 +226,8 @@
                 }
             });
     });
-
+    {{end}}
+    {{if .searchstruct.Courses}}
     srccource = {{.searchstruct.Courses}}
         srccource.forEach(function (cate) {
             courcecheckboxes = $('input[name="search-meals[]"]');
@@ -235,6 +237,8 @@
                 }
             });
         });
+    {{end}}
+    {{if .searchstruct.Sort}}
     sort = {{.searchstruct.Sort}}
             sortcheckboxes = $('input[name="search-sort"]');
             sortcheckboxes.each(function () {
@@ -242,6 +246,7 @@
                     this.checked = true
                 }
         });
+    {{end}}
     $("#search-form").bind('keypress keydown keyup', function (e) {
         if (e.keyCode === 13 && $("#search").val() === "") {
             e.preventDefault();
@@ -255,13 +260,14 @@
         });
         const data = await response.json();
         var str = ""
-        data.forEach(function (cate) {
+        await data.forEach(function (cate) {
             str += `<fieldset class="d-inline-block col-4">`
             str += `<input form="search-form" class="mx-1" type="checkbox" name="search-categories[]" value="` + cate + `" id="` + cate + `" />`
             str += `<label for="` + cate + `">` + cate + `</label>`
             str += `</fieldset>`
         })
         $("#ex1-pills-1").append(str)
+        {{if .searchstruct.Categories}}
         srccate = {{.searchstruct.Categories}}
             srccate.forEach(function (cate) {
                 catecheckboxes = $('input[name="search-categories[]"]');
@@ -271,6 +277,7 @@
                     }
                 });
             });
+        {{end}}
     });
 
 </script>
