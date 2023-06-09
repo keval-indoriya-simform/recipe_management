@@ -1,34 +1,30 @@
 package controllers
 
 import (
+	"github.com/gin-gonic/gin"
 	"github.com/keval-indoriya-simform/recipe_management/models"
-	"github.com/keval-indoriya-simform/recipe_management/services"
+	"net/http"
+	"strconv"
 )
 
-type ReviewController interface {
-	Save(review *models.Review)
-	GetReviewByEmailID(email string, id string) map[string]interface{}
-	GetReviewByRecipeID(id string) []map[string]interface{}
+func AddReviewApi(context *gin.Context) {
+	var rating models.Review
+	context.Bind(&rating)
+	models.InsertReviewData(&rating)
+	url := "/fullrecipe/" + strconv.Itoa(rating.RecipeID)
+	context.Redirect(http.StatusFound, url)
 }
 
-type reviewcontroller struct {
-	service services.ReviewService
+func GetReviewApi(context *gin.Context) {
+	id := context.Param("id")
+	ID, _ := strconv.Atoi(id)
+	email, _ := context.Get("email")
+	context.JSON(http.StatusOK, models.GetReviewByEmailID(email.(string), ID))
 }
 
-func NewReviewController(serv services.ReviewService) ReviewController {
-	return &reviewcontroller{
-		service: serv,
-	}
-}
-
-func (c *reviewcontroller) Save(review *models.Review) {
-	c.service.Save(review)
-}
-
-func (c *reviewcontroller) GetReviewByEmailID(email string, id string) map[string]interface{} {
-	return c.service.GetReviewByEmailID(email, id)
-}
-
-func (c *reviewcontroller) GetReviewByRecipeID(id string) []map[string]interface{} {
-	return c.service.GetReviewByRecipeID(id)
+func GetAllReviewsByRecipeIDApi(context *gin.Context) {
+	id := context.Param("id")
+	ID, _ := strconv.Atoi(id)
+	email, _ := context.Get("email")
+	context.JSON(http.StatusOK, models.GetReviewByRecipeID(email.(string), ID))
 }

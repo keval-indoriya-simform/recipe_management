@@ -23,8 +23,8 @@ func GetReviewByEmailID(email string, id int) map[string]interface{} {
 	return review
 }
 
-func GetReviewByRecipeID(id int) []map[string]interface{} {
+func GetReviewByRecipeID(email string, id int) []map[string]interface{} {
 	var review []map[string]interface{}
-	DB.Model(Review{}).Where("recipe_id=?", id).Limit(3).Order("random()").Find(&review)
+	DB.Model(Review{}).Where("recipe_id=? and not email_id=?", id, email).Limit(3).Order("random()").Find(&review)
 	return review
 }

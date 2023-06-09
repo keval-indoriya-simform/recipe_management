@@ -5,7 +5,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/keval-indoriya-simform/recipe_management/services"
-	"log"
 	"net/http"
 )
 
@@ -14,10 +13,9 @@ func AuthorizeJWT() gin.HandlerFunc {
 		session := sessions.Default(context)
 		tokenstr := session.Get("token")
 		if tokenstr == nil {
-			log.Println("token not found")
 			context.Redirect(http.StatusTemporaryRedirect, "/login")
 		} else {
-			token, _ := services.NewJWTService().ValidateToken(tokenstr.(string))
+			token, _ := services.ValidateToken(tokenstr.(string))
 			if !token.Valid {
 				context.AbortWithStatus(http.StatusForbidden)
 			} else {

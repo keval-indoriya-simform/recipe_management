@@ -135,11 +135,11 @@
               <label for="titleDesc">Title (Z - A)</label>
             </fieldset>
             <fieldset class="d-inline-block col-5 mx-4">
-              <input form="search-form" type="radio" name="search-sort" value="rating" id="rating"/>
+              <input form="search-form" type="radio" name="search-sort" value="avg_rating" id="rating"/>
               <label for="rating">Rating (Low To High)</label>
             </fieldset>
             <fieldset class="d-inline-block col-5 mx-4">
-              <input form="search-form" type="radio" name="search-sort" value="rating desc" id="ratingDesc"/>
+              <input form="search-form" type="radio" name="search-sort" value="avg_rating desc" id="ratingDesc"/>
               <label for="ratingDesc">Rating (High To Low)</label>
             </fieldset>
             <fieldset class="d-inline-block col-5 mx-4">
@@ -153,6 +153,7 @@
           </div>
         </div>
       </div>
+      <button class="btn btn-primary w-25 mb-2 mt-0 mx-auto" id="apply-filter">Apply Filter</button>
     </div>
   </div>
 </div>
@@ -206,11 +207,18 @@
     })
   })
   $("#searchbtn").click(function () {
+    if ($("#search").val() !== "") {
+      $("#search-form").submit()
+    }
+  });
+  $("#apply-filter").click(function () {
     $("#search-form").submit()
   });
-  $("#search").keydown(function (e) {
-    if (e.keyCode == 13) {
-      $("#search-form").submit()
+  $("#search-form").bind('keypress keydown keyup', function (e) {
+    console.log(e.keyCode)
+    if (e.keyCode === 13 && $("#search").val() === "") {
+      e.preventDefault();
+      return false;
     }
   });
   $(document).ready(async function() {
@@ -220,7 +228,7 @@
     const data = await response.json();
     var str = ""
     data.forEach(function (cate) {
-      str += `<fieldset class="d-inline-block col-3 mx-3">`
+      str += `<fieldset class="d-inline-block col-4">`
       str += `<input form="search-form" class="mx-1" type="checkbox" name="search-categories[]" value="` + cate + `" id="` + cate + `" />`
       str += `<label for="` + cate + `">` + cate + ` </label>`
       str += `</fieldset>`

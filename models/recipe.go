@@ -55,7 +55,7 @@ func InsertRecipeData(recipe *Recipe) {
 
 func GetAllRecipe() []map[string]interface{} {
 	var recipes []map[string]interface{}
-	DB.Model(Recipe{}).Select("recipes.id, recipes.image_url, recipes.title, recipes.cooking_time, recipes.serving," +
+	DB.Model(Recipe{}).Select("recipes.id, recipes.email_id, recipes.image_url, recipes.title, recipes.cooking_time, recipes.serving," +
 		" recipes.type, recipes.meals, recipes.difficulty_level, floor(avg(rating)) as avg_rating").
 		Joins(" left join reviews as r on r.recipe_id = recipes.id").Group("r.recipe_id, recipes.id").
 		Find(&recipes)
@@ -124,12 +124,12 @@ func SearchRecipe(searchStruct Search) []map[string]interface{} {
 		}
 		courseQuery += ")"
 	}
-	query := DB.Model(Recipe{}).Distinct("recipes.id, recipes.image_url, recipes.title, recipes.cooking_time, recipes.serving,"+
-		" recipes.type, recipes.meals, recipes.difficulty_level, floor(avg(rating)) as avg_rating").
+	query := DB.Model(Recipe{}).Distinct("recipes.id, recipes.email_id, recipes.image_url, recipes.title, recipes.cooking_time, recipes.serving,"+
+		" recipes.type, recipes.meals, recipes.difficulty_level, recipes.created_at, floor(avg(rating)) as avg_rating").
 		Joins("left join recipe_categories as rc on recipes.id = rc.recipe_id"+
 			" left join categories as c on rc.category_id = c.id"+
 			" left join reviews as r on r.recipe_id = recipes.id").Group("r.recipe_id, recipes.id").Where("(title ILike @keyword OR ingredients ILike @keyword OR type ILike @keyword OR meals ILike @keyword OR c.name ILike @keyword)"+categoriesQuery+typeQuery+courseQuery,
-		sql.Named("keyword", "%"+searchStruct.SearchKeyword+"%"))
+		sql.Named("keyword", "%"+searchStruct.SearchKeyword+"%")).Where("recipes.deleted_at is null and c.deleted_at is null and r.deleted_at is null")
 	query.Order(searchStruct.Sort).Find(&recipe)
 	return recipe
 }

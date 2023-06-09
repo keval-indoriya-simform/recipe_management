@@ -19,16 +19,6 @@ type JwtCustomClaims struct {
 	jwt.RegisteredClaims
 }
 
-type jwtService struct {
-	secretKey []byte
-}
-
-func NewJWTService() JWTService {
-	return &jwtService{
-		secretKey: GetSecretKey(),
-	}
-}
-
 func GetSecretKey() []byte {
 	secret := os.Getenv("JWT_SECRET")
 	if secret == "" {
@@ -37,7 +27,7 @@ func GetSecretKey() []byte {
 	return []byte(secret)
 }
 
-func (jwtSrv jwtService) GenerateToken(user models.Login) string {
+func GenerateToken(user models.Login) string {
 	sleepTime := 72
 	claims := &JwtCustomClaims{
 		user.Name,
@@ -50,18 +40,18 @@ func (jwtSrv jwtService) GenerateToken(user models.Login) string {
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
-	t, err := token.SignedString(jwtSrv.secretKey)
+	t, err := token.SignedString(GetSecretKey())
 	if err != nil {
 		panic(err)
 	}
 	return t
 }
 
-func (jwtSrv jwtService) ValidateToken(tokenString string) (*jwt.Token, error) {
+func ValidateToken(tokenString string) (*jwt.Token, error) {
 	return jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 		}
-		return jwtSrv.secretKey, nil
+		return GetSecretKey(), nil
 	})
 }
