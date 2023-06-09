@@ -270,7 +270,6 @@
     }
   });
   $("#search-form").bind('keypress keydown keyup', function (e) {
-    console.log(e.keyCode)
     if (e.keyCode === 13 && $("#search").val() === "") {
       e.preventDefault();
       return false;
@@ -296,7 +295,6 @@
       method: "POST",
     });
     const data = await response.json();
-    console.log(data)
     var str = ""
     data.forEach(function (cate) {
       str += `<fieldset class="d-inline-block">`

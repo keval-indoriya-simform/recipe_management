@@ -216,14 +216,40 @@
     $("#apply-filter").click(function () {
         $("#search-form").submit()
     });
+    srcmeals = {{.searchstruct.MealTypes}}
+    srcmeals.forEach(function (meal) {
+            checkboxes = $('input[name="search-type[]"]');
+            checkboxes.each(function () {
+                if (this.value === meal) {
+                    this.checked = true
+                }
+            });
+    });
+
+    srccource = {{.searchstruct.Courses}}
+        srccource.forEach(function (cate) {
+            courcecheckboxes = $('input[name="search-meals[]"]');
+            courcecheckboxes.each(function () {
+                if (this.value === cate) {
+                    this.checked = true
+                }
+            });
+        });
+    sort = {{.searchstruct.Sort}}
+            sortcheckboxes = $('input[name="search-sort"]');
+            sortcheckboxes.each(function () {
+                if (this.value === sort) {
+                    this.checked = true
+                }
+        });
     $("#search-form").bind('keypress keydown keyup', function (e) {
-        console.log(e.keyCode)
         if (e.keyCode === 13 && $("#search").val() === "") {
             e.preventDefault();
             return false;
         }
     });;
     $(document).ready(async function() {
+
         const response = await fetch('http://localhost:8080/api/category/Get_Categories', {
             method: "POST",
         });
@@ -232,10 +258,20 @@
         data.forEach(function (cate) {
             str += `<fieldset class="d-inline-block col-4">`
             str += `<input form="search-form" class="mx-1" type="checkbox" name="search-categories[]" value="` + cate + `" id="` + cate + `" />`
-            str += `<label for="` + cate + `">` + cate + ` </label>`
+            str += `<label for="` + cate + `">` + cate + `</label>`
             str += `</fieldset>`
         })
         $("#ex1-pills-1").append(str)
+        srccate = {{.searchstruct.Categories}}
+            srccate.forEach(function (cate) {
+                catecheckboxes = $('input[name="search-categories[]"]');
+                catecheckboxes.each(function () {
+                    if (this.value === cate) {
+                        this.checked = true
+                    }
+                });
+            });
     });
+
 </script>
 </html>
